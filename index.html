@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Arremesso Palmeirense</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  
+  <style> body { margin:0; overflow:hidden; background:#eef;} </style>
+</head>
+<body>
+
+    <script>
+
+        let logo, lixeira;
+        let dropped = false;
+        let droppedPos = null;
+        let gravity = 0.1;
+        let velocity = 0;
+        let rotation = 0;
+        let logoScale = 1;
+        let showSuccessMessage = false;
+        let successTimer = 0;
+
+        function preload() {
+            logo = loadImage('https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Palmeiras_logo.svg/1024px-Palmeiras_logo.svg.png');
+            lixeira = loadImage('https://images-na.ssl-images-amazon.com/images/I/91kJpnijp0L._AC_UL495_SR435,495_.jpg');
+        }
+
+        function setup() {
+            createCanvas(800, 500);
+            imageMode(CENTER);
+        }
+
+        function draw() {
+            background(255, 255, 255);
+            image(lixeira, width - 50, height - 50, 100, 100);
+            let pos = createVector(mouseX, mouseY);
+            
+            if (!dropped) {
+                image(logo, pos.x, pos.y, 100, 100);
+            }
+            
+            if (dropped) {
+                translate(droppedPos.x, droppedPos.y);
+                rotate(rotation);
+                scale(logoScale);
+                image(logo, 0, 0, 100, 100);
+                pop();
+                
+                velocity += gravity;
+                droppedPos.y += velocity;
+                rotation += 0.05; 
+                logoScale = map(velocity, 0, 10, 1, 0.7);
+                
+                if (droppedPos.x < 50 || droppedPos.x > width - 50) {
+                    resetDrop();
+                }
+
+                if (droppedPos.y > height - 50) {
+                    resetDrop();
+                    return;
+                }
+                
+                if (dist(droppedPos.x, droppedPos.y, width - 50, height - 50) < 50) {
+                    resetDrop();
+                    showSuccessMessage = true;
+                }
+                
+                if (droppedPos && droppedPos.y > height) {
+                    resetDrop();
+                }
+            }
+            
+            if (showSuccessMessage) {
+                textSize(32);
+                textAlign(CENTER);
+                text('Parabéns! Você acertou o lixo no lixo!', width / 2, height / 2);
+                
+            }
+        }
+        
+        function resetDrop() {
+            dropped = false;
+            droppedPos = null;
+            velocity = 0;
+            rotation = 0;
+            logoScale = 1;
+        }
+        
+        function mousePressed() {
+            if (showSuccessMessage) {
+                showSuccessMessage = false;
+                return;
+            }
+            
+            if (!dropped || !droppedPos) {
+                dropped = true;
+                droppedPos = createVector(mouseX, mouseY);
+            } else {
+                resetDrop();
+            }
+        }
+
+    </script>
+</body>
+</html>
